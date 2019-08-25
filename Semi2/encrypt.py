@@ -1,21 +1,8 @@
 #%%
-
-
-
-
-import random
+import random, re
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
-from imageio import imread
 
-
-def load_image(file):
-	try: 
-		img = imread(file)
-		return img
-	except:
-		raise Exception("erro no processamento do arquivo")
 
 def crypto_key():
   # montar a tabelinha-solução
@@ -40,7 +27,7 @@ class Message():
   def next(self):
     if self.current < len(self.msg):
       char = self.msg[self.current]
-      if char.isalpha():
+      if re.match("[A-Z]", char):
         ind = ord(char) - 65
         self.current += 1
         return random.choice(self.keys[ind])
@@ -61,12 +48,9 @@ def encrypt_message(msg,img):
       for x in range(img.shape[1]):
         a = msg.next()
         if a:
-          #print(a)
-          #print(chr(round(a[0] * 0.02 + a[1]  * 0.04 + a[2] * 0.04) + 65))
           img[y,x] = a
         else:
-          #print("endmessage")
-          raise BreakIt 
+          raise BreakIt
   except BreakIt:
     return img
 
@@ -79,10 +63,12 @@ def decrypt(img):
 
       text += char
 
-  
-  print(text)
 
-text = """DONT EVER TELL ME THAT IT ISNT POSSIBLE TO DO SOMETHING LIKE THAT"""
+  return text
+
+
+text = """a verdade esta mais perto do que voce imagina         meu caro."""
+
 
 image = plt.imread('Semi2/1up256.jpg')
 
@@ -90,8 +76,11 @@ txt = Message(text)
 img2 = encrypt_message(txt,image)
 
 plt.imshow(img2)
-decrypt(img2)
+dec = decrypt(img2)
 
+plt.imsave('encrypt.bmp',img2)
+with open('code.txt','w') as f:
+  f.write(dec)
 
 #  {chr(int(res) + 65)}
 
